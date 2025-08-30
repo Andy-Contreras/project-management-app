@@ -1,96 +1,97 @@
 # Archivo docker-compose.yml para orquestar los servicios
 # Microservicio autenticacion
-auth-service:
-# le decimos a docker que sue el Dockerfile que se encuentra
-# en la carpeta de auth-service
-  build: ./auth-service
-# Nombre del contenedor, para debug
-  container_name: auth-service
-# cuando arranque, que se ejecute el sevirdor de django
-  command: python manage.py runserver 0.0.0.0:8000
-# montamos la carpte local, dentro del contenedor en /app.
-# permite editar codigo sin reconstruir la imagen
-  volumes: 
-    - ./auth-service:/app
-# Expone el puerto 8000 del contenedor en el 8001 de tu maquia
-  ports: 
-    - "8001:8000"
-# servicio que necesita postgres, por eso debe arrancar despues de db
-  depends_on:
-    - db
+services:
+  auth-service:
+  # le decimos a docker que sue el Dockerfile que se encuentra
+  # en la carpeta de auth-service
+    build: ./auth-service
+  # Nombre del contenedor, para debug
+    container_name: auth-service
+  # cuando arranque, que se ejecute el sevirdor de django
+    command: python manage.py runserver 0.0.0.0:8000
+  # montamos la carpte local, dentro del contenedor en /app.
+  # permite editar codigo sin reconstruir la imagen
+    volumes: 
+      - ./auth-service:/app
+  # Expone el puerto 8000 del contenedor en el 8001 de tu maquia
+    ports: 
+      - "8001:8000"
+  # servicio que necesita postgres, por eso debe arrancar despues de db
+    depends_on:
+      - db
 
-# Microservicio notifications-service
-notification-service:
-  build: ./notifications-servico
-  container_name: notifications-service
-  command: python manage.py runserver 0.0.0.0:8000
-  volumes: 
-    - ./notifications-service:/app
-  ports:
-    - "8002:8000"
-  depends_on:
-    - db
+  # Microservicio notifications-service
+  notifications-service:
+    build: ./notifications-servico
+    container_name: notifications-service
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes: 
+      - ./notifications-service:/app
+    ports:
+      - "8002:8000"
+    depends_on:
+      - db
 
-# Microservicio projects-service
-projects-service:
-  build: ./projects-service
-  container_name: projects-service
-  command: python manage.py runserver 0.0.0.0:8000
-  volumes:
-    - ./projects-service:/app
-  ports: 
-    - "8003:8000"
-  depends_on:
-    - db
+  # Microservicio projects-service
+  projects-service:
+    build: ./projects-service
+    container_name: projects-service
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./projects-service:/app
+    ports: 
+      - "8003:8000"
+    depends_on:
+      - db
 
-# Microservicio tasks-service
-tasks-service:
-  build: ./tasks-service
-  container_name: tasks-service
-  command: python manage.py runserver 0.0.0.0:8000
-  volumes: 
-    - ./tasks-service:/app
-  ports: 
-    - "8004:8000"
-  depends_on:
-    - db
+  # Microservicio tasks-service
+  tasks-service:
+    build: ./tasks-service
+    container_name: tasks-service
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes: 
+      - ./tasks-service:/app
+    ports: 
+      - "8004:8000"
+    depends_on:
+      - db
 
-# Configuracion del API Gateway con Nginx
-api-gateway:
-  build: nginx:latest
-  container_name : api-gatewat
-# monta el archivo de configuracion 
-  volumes:
-    - ./api-gatewat/nginx.conf:/etc/nginx/nginx.conf
-  ports: 
-# puerto HTTP estandar 
-    - "80:80"
-# asegura que los demas servicios esten arriba
-  depends_on:
-    - auth-service
-    - notifications-service
-    - projects-service
-    - tasks-service
+  # Configuracion del API Gateway con Nginx
+  api-gateway:
+    image: nginx:latest
+    container_name : api-gateway
+  # monta el archivo de configuracion 
+    volumes:
+      - ./api-gatewat/nginx.conf:/etc/nginx/nginx.conf
+    ports: 
+  # puerto HTTP estandar 
+      - "80:80"
+  # asegura que los demas servicios esten arriba
+    depends_on:
+      - auth-service
+      - notifications-service
+      - projects-service
+      - tasks-service
 
 
 
-# Configuracion del sevicio de base de datos
-db:
-  image: postgres:14
-  environment:
-# nombre de usuario principal de la base de datos
-    POSTGRES_USER: admin
-# la contraseña del usuario
-    POSTGRES_PASSWORD: admin
-# crear automaticamente una base de datos con este nombre 
-    POSTGRES_DB: project_management
-  volumes:
-    - ./postgres-data:/var/lib/postgresql/data
-  ports:
-    - "5432:5432"
+  # Configuracion del sevicio de base de datos
+  db:
+    image: postgres:14
+    environment:
+  # nombre de usuario principal de la base de datos
+      POSTGRES_USER: admin
+  # la contraseña del usuario
+      POSTGRES_PASSWORD: admin
+  # crear automaticamente una base de datos con este nombre 
+      POSTGRES_DB: project_management
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
 
-# Configuracion del servicio de notificaciones con Redis
-redis:
-  image: redis:alpine
-  ports:
-    - "6379:6379"
+  # Configuracion del servicio de notificaciones con Redis
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
