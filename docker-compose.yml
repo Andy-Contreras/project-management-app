@@ -22,7 +22,7 @@ services:
 
   # Microservicio notifications-service
   notifications-service:
-    build: ./notifications-servico
+    build: ./notifications-service
     container_name: notifications-service
     command: python manage.py runserver 0.0.0.0:8000
     volumes: 
