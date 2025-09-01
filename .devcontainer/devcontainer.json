@@ -1,7 +1,7 @@
 {
-  "name": "projects service Dev",
+  "name": "Tasks Service Dev",
   "dockerComposeFile": "../docker-compose.yml",
-  "service": "projects-service",  
+  "service": "tasks-service",  
   "workspaceFolder": "/app",
   "customizations": {
     "vscode": {
